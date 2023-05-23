@@ -41,7 +41,7 @@ export class Modal extends Component {
 }
 
 Modal.propTypes = {
-  id: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
   largeImageURL: PropTypes.string.isRequired,
   handleBackdropClick: PropTypes.func.isRequired,
 };
