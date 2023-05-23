@@ -1,4 +1,11 @@
 import { Component } from 'react';
+import {
+  StyledButton,
+  StyledFormInput,
+  StyledSearchForm,
+  StyledSearchbar,
+} from './SearchBar.styled';
+import PropTypes from 'prop-types'; // ES6
 
 export class SearchBar extends Component {
   state = {
@@ -9,22 +16,17 @@ export class SearchBar extends Component {
     this.setState({ searchQuery: e.target.value });
   };
 
+  handleSubmit = e => {
+    e.preventDefault();
+    this.props.onSubmit(this.state.searchQuery);
+  };
+
   render() {
     return (
-      <header className="searchbar">
-        <form
-          className="form"
-          onSubmit={e => {
-            e.preventDefault();
-            this.props.onSubmit(this.state.searchQuery);
-          }}
-        >
-          <button type="submit" className="button">
-            <span className="button-label">Search</span>
-          </button>
-
-          <input
-            className="input"
+      <StyledSearchbar>
+        <StyledSearchForm onSubmit={this.handleSubmit}>
+          <StyledButton type="submit"></StyledButton>
+          <StyledFormInput
             type="text"
             autoComplete="off"
             autoFocus
@@ -32,8 +34,12 @@ export class SearchBar extends Component {
             value={this.state.searchQuery}
             onChange={this.handleInputChange}
           />
-        </form>
-      </header>
+        </StyledSearchForm>
+      </StyledSearchbar>
     );
   }
 }
+
+SearchBar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};

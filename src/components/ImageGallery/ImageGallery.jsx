@@ -1,11 +1,28 @@
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
+import { StyledGallery } from './ImageGallery.styled';
+import PropTypes from 'prop-types';
 
 export function ImageGallery({ images }) {
   return (
-    <ul className="gallery">
-      {images.map(({ id, previewURL }) => (
-        <ImageGalleryItem id={id} previewURL={previewURL} key={id} />
+    <StyledGallery>
+      {images.map(({ id, webformatURL, largeImageURL }) => (
+        <ImageGalleryItem
+          key={id}
+          id={id}
+          webformatURL={webformatURL}
+          largeImageURL={largeImageURL}
+        />
       ))}
-    </ul>
+    </StyledGallery>
   );
 }
+
+ImageGallery.propTypes = {
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      webformatURL: PropTypes.string.isRequired,
+      largeImageURL: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+};
