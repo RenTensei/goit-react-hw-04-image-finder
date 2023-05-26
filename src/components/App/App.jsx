@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 
 import { SearchBar } from 'components/Searchbar/SearchBar';
 import { ImageGallery } from 'components/ImageGallery/ImageGallery';
@@ -8,68 +8,70 @@ import { Button } from 'components/Button/Button';
 import { StyledApp } from './App.styled';
 import { Dna } from 'react-loader-spinner';
 
-export class App extends Component {
-  state = {
-    images: [],
-    currentQuery: '',
-    currentPage: 1,
-    isLoading: false,
-  };
+export function App() {
+  const [images, setImages] = useState([]);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  async componentDidUpdate(prevProps, prevState) {
-    const { currentQuery } = this.state;
-
-    if (prevState.currentQuery !== currentQuery) {
-      this.setState({ images: [], isLoading: true });
-
-      const newPage = 1;
-
-      const data = await fetchImages(currentQuery, newPage);
-
-      this.setState({
-        images: data.hits,
-        currentPage: newPage,
-        isLoading: false,
-      });
+  useEffect(() => {
+    if (!page) {
+      setIsLoading(false);
+      console.log('im done');
+      return;
     }
-  }
 
-  updateQuery = newQuery => {
-    this.setState({ currentQuery: newQuery, isLoading: true });
+    setIsLoading(true);
+
+    fetchImages(query, page)
+      .then(data => {
+        if (page === 1) {
+          setImages(data.hits);
+          console.log('render new page');
+          return;
+        }
+
+        setImages(prev => [...prev, ...data.hits]);
+        console.log('render more');
+      })
+      .catch(e => console.log(e))
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [query, page]);
+
+  useLayoutEffect(() => {
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth', // Make the scroll behavior smooth
+    });
+  }, [images]);
+
+  const updateQuery = newQuery => {
+    setImages([]);
+    setQuery(newQuery);
+    setPage(1);
   };
 
-  loadMore = async () => {
-    const { currentQuery, currentPage } = this.state;
-
-    this.setState({ isLoading: true });
-
-    const nextPage = currentPage + 1;
-
-    const data = await fetchImages(currentQuery, nextPage);
-
-    this.setState(prevState => ({
-      images: [...prevState.images, ...data.hits],
-      currentPage: nextPage,
-      isLoading: false,
-    }));
+  const loadMore = () => {
+    setPage(prev => prev + 1);
   };
 
-  render() {
-    const { images, isLoading } = this.state;
-    return (
-      <StyledApp>
-        <SearchBar onSubmit={this.updateQuery} />
-        <ImageGallery images={images} />
-        <Dna
-          visible={isLoading}
-          height="120"
-          width="120"
-          ariaLabel="dna-loading"
-          wrapperStyle={{ margin: '0 auto' }}
-          wrapperClass="dna-wrapper"
-        />
-        {images.length !== 0 ? <Button handleLoadMore={this.loadMore} /> : null}
-      </StyledApp>
-    );
-  }
+  return (
+    <StyledApp>
+      <SearchBar onSubmit={updateQuery} />
+      <ImageGallery images={images} />
+
+      <Dna
+        visible={isLoading}
+        height="120"
+        width="120"
+        ariaLabel="dna-loading"
+        wrapperStyle={{ margin: '0 auto' }}
+        wrapperClass="dna-wrapper"
+      />
+
+      {images.length !== 0 && <Button handleLoadMore={loadMore} />}
+    </StyledApp>
+  );
 }

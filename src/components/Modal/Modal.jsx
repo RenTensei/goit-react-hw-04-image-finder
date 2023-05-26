@@ -1,43 +1,38 @@
-import { Component } from 'react';
+import { useEffect } from 'react';
 import { ModalOverlay, StyledModal } from './Modal.styled';
 import PropTypes from 'prop-types';
 
-export class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
-  }
+export function Modal({ id, largeImageURL, handleBackdropClick }) {
+  useEffect(() => {
+    const handleKeyDown = event => {
+      if (event.key === 'Escape') {
+        handleBackdropClick();
+      }
+    };
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleBackdropClick]);
 
-  handleKeyDown = event => {
-    if (event.key === 'Escape') {
-      this.props.handleBackdropClick();
-    }
-  };
-
-  handleBackdrop = e => {
+  const handleBackdrop = e => {
     if (e.target === e.currentTarget) {
-      this.props.handleBackdropClick();
+      handleBackdropClick();
     }
   };
 
-  render() {
-    const { id, largeImageURL } = this.props;
-
-    return (
-      <ModalOverlay onClick={this.handleBackdrop}>
-        <StyledModal>
-          <img
-            style={{ width: '70%', margin: '0 auto' }}
-            src={largeImageURL}
-            alt={id}
-          />
-        </StyledModal>
-      </ModalOverlay>
-    );
-  }
+  return (
+    <ModalOverlay onClick={handleBackdrop}>
+      <StyledModal>
+        <img
+          style={{ width: '80%', margin: '0 auto' }}
+          src={largeImageURL}
+          alt={id}
+        />
+      </StyledModal>
+    </ModalOverlay>
+  );
 }
 
 Modal.propTypes = {
