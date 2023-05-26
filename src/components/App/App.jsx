@@ -48,6 +48,10 @@ export function App() {
   }, [images]);
 
   const updateQuery = newQuery => {
+    if (newQuery === query) {
+      return;
+    }
+
     setImages([]);
     setQuery(newQuery);
     setPage(1);
